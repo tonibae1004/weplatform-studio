@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WePlatform 소셜 콘텐츠 자동화</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ================= 로그인 ================= -->
+<div id="login-screen">
+  <form class="login-card" id="login-form" autocomplete="off">
+    <div class="logo"><span class="mark">W</span> WePlatform Studio</div>
+    <p class="muted" style="margin-top:8px">인스타 · 릴스 · 쇼츠 · 틱톡 · X 콘텐츠 자동화 (사내 직원용)</p>
+    <label>아이디</label>
+    <input type="text" id="login-id" placeholder="사내 계정 ID" required>
+    <label>비밀번호</label>
+    <input type="password" id="login-pw" placeholder="비밀번호" required>
+    <div class="login-error" id="login-error"></div>
+    <button class="btn primary" type="submit">로그인</button>
+  </form>
+</div>
+
+<!-- ================= 앱 ================= -->
+<div id="app" class="hidden">
+  <aside class="sidebar">
+    <div class="logo"><span class="mark">W</span> WePlatform Studio</div>
+    <div class="nav-group">소재 생성</div>
+    <button class="nav-item active" data-page="image"><span class="ico">🖼️</span> 이미지 (카드뉴스)</button>
+    <button class="nav-item" data-page="video"><span class="ico">🎬</span> 영상 (쇼츠/릴스)</button>
+    <div class="nav-group">운영</div>
+    <button class="nav-item" data-page="library"><span class="ico">🗂️</span> 라이브러리 · 포스팅</button>
+    <button class="nav-item" data-page="blog"><span class="ico">📝</span> 블로그 자동화</button>
+    <div class="nav-group">설정</div>
+    <button class="nav-item" data-page="admin"><span class="ico">⚙️</span> 관리</button>
+    <div class="spacer"></div>
+    <div class="userbox"><span id="user-label">weplatform01</span><button class="btn sm" id="logout-btn">로그아웃</button></div>
+  </aside>
+
+  <main class="main">
+
+    <!-- ---------- 이미지 ---------- -->
+    <section class="page active" id="page-image">
+      <div class="page-head">
+        <div><h1>카드뉴스 이미지 생성</h1><p>제목·설명·이벤트 내용을 입력하면 릴스용 세로형(1080×1920, 9:16) 카드 4장을 자동 제작합니다.</p></div>
+        <div class="row">
+          <button class="btn" id="img-review-btn">🔍 카피 검수</button>
+          <button class="btn primary" id="img-render-btn">✨ 카드 생성</button>
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <h3>콘텐츠 입력</h3>
+          <div class="field"><label>브랜드/계정명</label><input type="text" id="img-brand" placeholder="예: 위플랫폼 @weplatform" value="WePlatform"></div>
+          <div class="field"><label>제목 <span>표지 카드</span></label><input type="text" id="img-title" placeholder="예: 11월 한정, 첫 구매 50% 할인 이벤트"></div>
+          <div class="field"><label>설명 <span>2번 카드</span></label><textarea id="img-desc" placeholder="브랜드/상품 소개, 이벤트 배경 등 2~4문장"></textarea></div>
+          <div class="field"><label>이벤트 내용 <span>3번 카드 · 줄바꿈으로 항목 구분</span></label><textarea id="img-event" placeholder="신규 가입 시 1만 포인트 지급&#10;친구 초대 시 추가 5천 포인트&#10;기간: 11/7 ~ 11/30"></textarea></div>
+          <div class="grid-2">
+            <div class="field"><label>CTA 문구 <span>4번 카드</span></label><input type="text" id="img-cta" placeholder="예: 프로필 링크에서 지금 참여하기" value="프로필 링크에서 지금 참여하세요"></div>
+            <div class="field"><label>해시태그</label><input type="text" id="img-tags" placeholder="#이벤트 #할인 #위플랫폼"></div>
+          </div>
+          <div class="field"><label>표지 라벨</label><input type="text" id="img-badge" value="EVENT"></div>
+        </div>
+        <div class="card">
+          <h3>디자인</h3>
+          <div class="field"><label>컬러 테마</label><div class="theme-swatches" id="img-themes"></div></div>
+          <div class="grid-2">
+            <div class="field"><label>배경 이미지 (선택)</label><input type="file" id="img-bg" accept="image/*"></div>
+            <div class="field"><label>제목 크기</label><select id="img-title-size"><option value="96">보통</option><option value="112" selected>크게</option><option value="128">아주 크게</option></select></div>
+          </div>
+          <div class="grid-2">
+            <div class="field"><label>제목 정렬</label><select id="img-align"><option value="left">왼쪽</option><option value="center" selected>가운데</option></select></div>
+            <div class="field"><label>배경 흐림(이미지 사용 시)</label><select id="img-dim"><option value="0.35">약하게</option><option value="0.55" selected>보통</option><option value="0.75">강하게</option></select></div>
+          </div>
+          <div id="img-review" class="review hidden"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="row between">
+          <h3>미리보기 <span class="muted small">1080 × 1920 px · 4장</span></h3>
+          <div class="row">
+            <button class="btn" id="img-download-btn" disabled>⬇ PNG 전체 다운로드</button>
+            <button class="btn primary" id="img-save-btn" disabled>💾 라이브러리 저장</button>
+          </div>
+        </div>
+        <div class="cards-preview mt" id="img-preview">
+          <canvas width="1080" height="1920"></canvas><canvas width="1080" height="1920"></canvas>
+          <canvas width="1080" height="1920"></canvas><canvas width="1080" height="1920"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---------- 영상 ---------- -->
+    <section class="page" id="page-video">
+      <div class="page-head">
+        <div><h1>쇼츠 · 릴스 · 틱톡 영상 생성</h1><p>도입 → 중반 → 절정 → 결말 4단계 자막을 입력하면 15초 세로형(1080×1920) 또는 가로형(1920×1080) FHD 영상을 만듭니다.</p></div>
+        <div class="row">
+          <button class="btn" id="vid-review-btn">🔍 카피 검수</button>
+          <button class="btn" id="vid-preview-btn">▶ 미리보기</button>
+          <button class="btn primary" id="vid-render-btn">🎬 영상 생성(녹화)</button>
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <h3>자막 (4단계)</h3>
+          <div class="field"><label>브랜드/계정명</label><input type="text" id="vid-brand" value="WePlatform"></div>
+          <div id="vid-sections"></div>
+          <div class="field"><label>BGM (선택, mp3/wav)</label><input type="file" id="vid-bgm" accept="audio/*"></div>
+        </div>
+        <div class="card">
+          <h3>포맷 · 스타일</h3>
+          <div class="field"><label>화면 비율</label>
+            <div class="seg" id="vid-orient">
+              <button data-v="portrait" class="active">세로 9:16 · 1080×1920</button>
+              <button data-v="landscape">가로 16:9 · 1920×1080</button>
+            </div>
+          </div>
+          <div class="grid-3">
+            <div class="field"><label>길이</label><select id="vid-duration"><option value="15" selected>15초</option><option value="30">30초</option><option value="60">60초</option></select></div>
+            <div class="field"><label>자막 위치</label><select id="vid-pos"><option value="center" selected>중앙</option><option value="bottom">하단 (안전영역)</option></select></div>
+            <div class="field"><label>전환 효과</label><select id="vid-anim"><option value="fade" selected>페이드</option><option value="slide">슬라이드 업</option><option value="zoom">줌 인</option></select></div>
+          </div>
+          <div class="field"><label>컬러 테마</label><div class="theme-swatches" id="vid-themes"></div></div>
+          <div class="field"><label>대상 플랫폼 (가이드 표시)</label>
+            <div class="row">
+              <label class="chip"><input type="checkbox" id="vid-t-yt" checked> YouTube Shorts</label>
+              <label class="chip"><input type="checkbox" id="vid-t-ig" checked> Instagram Reels</label>
+              <label class="chip"><input type="checkbox" id="vid-t-tt" checked> TikTok</label>
+            </div>
+          </div>
+          <div id="vid-review" class="review hidden"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="row between">
+          <h3>미리보기 / 녹화 <span class="muted small" id="vid-res-label">1080 × 1920 · 15초 · 30fps</span></h3>
+          <div class="row">
+            <button class="btn" id="vid-download-btn" disabled>⬇ 영상 다운로드</button>
+            <button class="btn primary" id="vid-save-btn" disabled>💾 라이브러리 저장</button>
+          </div>
+        </div>
+        <div class="progress mt hidden" id="vid-progress"><div></div></div>
+        <div class="grid-2 mt">
+          <div class="video-stage portrait" id="vid-stage"><canvas id="vid-canvas" width="1080" height="1920"></canvas></div>
+          <div class="stack">
+            <div class="muted small">녹화 결과</div>
+            <video id="vid-result" controls class="hidden"></video>
+            <div class="muted small" id="vid-result-info">아직 생성된 영상이 없습니다. 자막을 입력하고 <b>영상 생성(녹화)</b>을 누르면 실시간으로 렌더링하여 파일을 만듭니다.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---------- 라이브러리 ---------- -->
+    <section class="page" id="page-library">
+      <div class="page-head">
+        <div><h1>라이브러리 · 자동 포스팅</h1><p>생성한 이미지/영상을 관리하고 연동된 Meta · YouTube · TikTok · X 계정으로 즉시 또는 예약 게시합니다.</p></div>
+        <div class="row">
+          <div class="seg" id="lib-filter">
+            <button data-v="all" class="active">전체</button><button data-v="image">이미지</button><button data-v="video">영상</button>
+          </div>
+          <label class="btn">⬆ 파일 가져오기 <input type="file" id="lib-import" accept="image/*,video/*" multiple hidden></label>
+        </div>
+      </div>
+      <div class="lib-grid" id="lib-grid"></div>
+      <div class="card mt">
+        <h3>포스팅 큐 <span class="muted small">예약/진행/완료 내역</span></h3>
+        <table id="post-table"><thead><tr><th>소재</th><th>플랫폼</th><th>예약 시각</th><th>상태</th><th>로그</th><th></th></tr></thead><tbody></tbody></table>
+      </div>
+    </section>
+
+    <!-- ---------- 블로그 ---------- -->
+    <section class="page" id="page-blog">
+      <div class="page-head">
+        <div><h1>블로그 자동화 · 마케팅 인사이트</h1><p>캠페인 정보를 입력하면 인사이트와 전략 리포트를 생성하고, 라이브러리 소재를 붙여 PDF로 출력합니다.</p></div>
+        <div class="row">
+          <button class="btn" id="blog-attach-btn">🖼️ 라이브러리 소재 첨부</button>
+          <button class="btn" id="blog-pdf-btn" disabled>📄 PDF 출력</button>
+          <button class="btn primary" id="blog-gen-btn">🧠 리포트 생성</button>
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <h3>캠페인 정보</h3>
+          <div class="grid-2">
+            <div class="field"><label>브랜드/제품명</label><input type="text" id="blog-brand" placeholder="예: 위플랫폼 멤버십"></div>
+            <div class="field"><label>업종</label><input type="text" id="blog-industry" placeholder="예: 커머스 / 뷰티 / 교육"></div>
+          </div>
+          <div class="field"><label>타깃 고객</label><input type="text" id="blog-target" placeholder="예: 20~30대 직장인 여성, 자기계발 관심"></div>
+          <div class="grid-2">
+            <div class="field"><label>캠페인 목표</label><select id="blog-goal"><option value="awareness">인지도 확대</option><option value="conversion" selected>구매/가입 전환</option><option value="follower">팔로워·구독자 증가</option><option value="retention">재구매·리텐션</option></select></div>
+            <div class="field"><label>기간</label><input type="text" id="blog-period" placeholder="예: 2026.11.07 ~ 11.30"></div>
+          </div>
+          <div class="grid-2">
+            <div class="field"><label>월 예산 (만원)</label><input type="number" id="blog-budget" placeholder="예: 300"></div>
+            <div class="field"><label>운영 채널</label>
+              <div class="row">
+                <label class="chip"><input type="checkbox" class="blog-ch" value="instagram" checked> 인스타</label>
+                <label class="chip"><input type="checkbox" class="blog-ch" value="youtube" checked> 유튜브</label>
+                <label class="chip"><input type="checkbox" class="blog-ch" value="tiktok" checked> 틱톡</label>
+                <label class="chip"><input type="checkbox" class="blog-ch" value="x"> X</label>
+              </div>
+            </div>
+          </div>
+          <div class="field"><label>핵심 메시지 / 혜택</label><textarea id="blog-message" placeholder="예: 첫 달 무료, 전문가 콘텐츠 무제한"></textarea></div>
+          <div class="field"><label>경쟁사 / 비고</label><input type="text" id="blog-notes" placeholder="예: 경쟁사 A는 할인 위주, 우리는 콘텐츠 품질 강조"></div>
+          <div class="muted small" id="blog-ai-note"></div>
+        </div>
+        <div class="card">
+          <h3>저장된 리포트</h3>
+          <div id="blog-list" class="stack"></div>
+        </div>
+      </div>
+      <div class="card mt no-print" id="blog-report-wrap">
+        <div id="print-area"><div class="report" id="blog-report"><p class="muted">아직 생성된 리포트가 없습니다.</p></div></div>
+      </div>
+    </section>
+
+    <!-- ---------- 관리 ---------- -->
+    <section class="page" id="page-admin">
+      <div class="page-head">
+        <div><h1>관리</h1><p>SNS 계정 연동, 힉스필드 API, AI 카피 검수 설정, 데이터 백업을 관리합니다.</p></div>
+      </div>
+      <div class="tabs" id="admin-tabs">
+        <button class="tab active" data-tab="accounts">계정 연동</button>
+        <button class="tab" data-tab="higgsfield">힉스필드 API</button>
+        <button class="tab" data-tab="ai">AI 검수·인사이트</button>
+        <button class="tab" data-tab="data">데이터·계정</button>
+      </div>
+
+      <div class="admin-tab" id="admin-accounts">
+        <div class="grid-2">
+          <div class="card">
+            <h3>📷 Meta (Instagram · Facebook) <span class="chip" id="st-meta">미연동</span></h3>
+            <p class="muted small">Instagram Graph API — 비즈니스/크리에이터 계정과 페이스북 페이지가 연결되어 있어야 합니다. 게시 시 미디어는 <b>공개 URL</b>이 필요합니다.</p>
+            <div class="field"><label>Instagram 비즈니스 계정 ID</label><input type="text" id="meta-igid" placeholder="1784xxxxxxxxxxxxx"></div>
+            <div class="field"><label>장기 액세스 토큰</label><input type="password" id="meta-token" placeholder="EAAG..."></div>
+            <div class="row"><button class="btn" data-test="meta">연결 테스트</button><button class="btn primary" data-save="meta">저장</button></div>
+            <div class="muted small mt" id="log-meta"></div>
+          </div>
+          <div class="card">
+            <h3>▶ YouTube <span class="chip" id="st-youtube">미연동</span></h3>
+            <p class="muted small">YouTube Data API v3 — Google Cloud OAuth 클라이언트 ID로 로그인하거나, <code>youtube.upload</code> 범위의 액세스 토큰을 직접 입력합니다.</p>
+            <div class="field"><label>OAuth 클라이언트 ID</label><input type="text" id="yt-clientid" placeholder="xxxx.apps.googleusercontent.com"></div>
+            <div class="field"><label>액세스 토큰</label><input type="password" id="yt-token" placeholder="ya29..."></div>
+            <div class="row"><button class="btn" id="yt-oauth-btn">Google 로그인</button><button class="btn" data-test="youtube">연결 테스트</button><button class="btn primary" data-save="youtube">저장</button></div>
+            <div class="muted small mt" id="log-youtube"></div>
+          </div>
+          <div class="card">
+            <h3>🎵 TikTok <span class="chip" id="st-tiktok">미연동</span></h3>
+            <p class="muted small">TikTok Content Posting API — 앱 심사 승인 후 발급된 사용자 액세스 토큰(<code>video.publish</code>)이 필요합니다.</p>
+            <div class="field"><label>Client Key</label><input type="text" id="tt-clientkey"></div>
+            <div class="field"><label>사용자 액세스 토큰</label><input type="password" id="tt-token"></div>
+            <div class="row"><button class="btn" data-test="tiktok">연결 테스트</button><button class="btn primary" data-save="tiktok">저장</button></div>
+            <div class="muted small mt" id="log-tiktok"></div>
+          </div>
+          <div class="card">
+            <h3>𝕏 X (Twitter) <span class="chip" id="st-x">미연동</span></h3>
+            <p class="muted small">X API v2 — OAuth 2.0 사용자 토큰(<code>tweet.write media.write</code>)이 필요합니다.</p>
+            <div class="field"><label>계정 핸들</label><input type="text" id="x-handle" placeholder="@weplatform"></div>
+            <div class="field"><label>OAuth 2.0 액세스 토큰</label><input type="password" id="x-token"></div>
+            <div class="row"><button class="btn" data-test="x">연결 테스트</button><button class="btn primary" data-save="x">저장</button></div>
+            <div class="muted small mt" id="log-x"></div>
+          </div>
+        </div>
+        <div class="card mt">
+          <h3>🔁 포스팅 프록시 (선택)</h3>
+          <p class="muted small">브라우저에서 직접 호출이 차단되는 API(TikTok, X, 힉스필드 등)는 사내 프록시 서버를 통해 전송할 수 있습니다. 프록시 URL을 지정하면 모든 외부 API 요청을 <code>{프록시}/forward</code>로 보냅니다(요청 JSON: url, method, headers, body).</p>
+          <div class="field"><label>프록시 URL</label><input type="url" id="proxy-url" placeholder="https://proxy.weplatform.internal"></div>
+          <button class="btn primary" data-save="proxy">저장</button>
+        </div>
+      </div>
+
+      <div class="admin-tab hidden" id="admin-higgsfield">
+        <div class="grid-2">
+          <div class="card">
+            <h3>🧬 힉스필드(Higgsfield) API <span class="chip" id="st-hf">미연동</span></h3>
+            <p class="muted small">Higgsfield Console에서 발급한 Key ID / Secret. 인증 헤더는 <code>Authorization: Key ID:SECRET</code>, 엔드포인트는 <code>https://api.higgsfield.ai</code>입니다.</p>
+            <div class="field"><label>Key ID</label><input type="text" id="hf-key"></div>
+            <div class="field"><label>Key Secret</label><input type="password" id="hf-secret"></div>
+            <div class="field"><label>API Base URL</label><input type="url" id="hf-base" value="https://api.higgsfield.ai"></div>
+            <div class="row"><button class="btn" data-test="hf">연결 테스트</button><button class="btn primary" data-save="hf">저장</button></div>
+            <div class="muted small mt" id="log-hf"></div>
+          </div>
+          <div class="card">
+            <h3>AI 생성 요청</h3>
+            <div class="field"><label>모델 엔드포인트 경로</label>
+              <select id="hf-model">
+                <option value="higgsfield-ai/soul/v2/standard">Soul v2 Standard (텍스트 → 이미지)</option>
+                <option value="minimax/hailuo-2.3/standard/image-to-video">MiniMax Hailuo 2.3 (이미지 → 영상)</option>
+                <option value="custom">직접 입력</option>
+              </select>
+            </div>
+            <div class="field"><label>직접 입력 경로</label><input type="text" id="hf-model-custom" placeholder="provider/model/variant"></div>
+            <div class="field"><label>프롬프트</label><textarea id="hf-prompt" placeholder="예: Cinematic product shot of a coffee cup on a marble table, soft morning light"></textarea></div>
+            <div class="field"><label>이미지 URL (이미지→영상 모델일 때)</label><input type="url" id="hf-image-url"></div>
+            <div class="field"><label>추가 파라미터 (JSON)</label><textarea id="hf-extra" class="mono">{ "aspect_ratio": "9:16" }</textarea></div>
+            <div class="row"><button class="btn primary" id="hf-run-btn">생성 요청</button><span class="muted small" id="hf-status"></span></div>
+            <div id="hf-result" class="mt"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="admin-tab hidden" id="admin-ai">
+        <div class="card">
+          <h3>🤖 Claude API (카피 검수 · 인사이트 고도화) <span class="chip" id="st-claude">미설정</span></h3>
+          <p class="muted small">키를 등록하면 규칙 기반 검수에 더해 Claude가 카피 품질·정책 리스크를 심층 평가하고, 블로그 인사이트 리포트를 생성합니다. 키가 없으면 내장 규칙/템플릿으로 동작합니다.</p>
+          <div class="grid-2">
+            <div class="field"><label>API Key</label><input type="password" id="claude-key" placeholder="sk-ant-..."></div>
+            <div class="field"><label>모델</label><select id="claude-model"><option value="claude-opus-5-5" selected>claude-opus-5-5 (기본)</option><option value="claude-sonnet-5-5">claude-sonnet-5-5</option><option value="claude-haiku-5-5">claude-haiku-5-5</option></select></div>
+          </div>
+          <div class="row"><button class="btn" data-test="claude">연결 테스트</button><button class="btn primary" data-save="claude">저장</button></div>
+          <div class="muted small mt" id="log-claude"></div>
+        </div>
+        <div class="card">
+          <h3>검수 규칙 (내장)</h3>
+          <div id="rule-list" class="small"></div>
+        </div>
+      </div>
+
+      <div class="admin-tab hidden" id="admin-data">
+        <div class="grid-2">
+          <div class="card">
+            <h3>👤 계정</h3>
+            <table><tr><th>ID</th><td>weplatform01</td></tr><tr><th>권한</th><td>사내 직원 (전체)</td></tr><tr><th>로그인 시각</th><td id="login-time"></td></tr></table>
+          </div>
+          <div class="card">
+            <h3>💾 데이터</h3>
+            <p class="muted small">라이브러리/포스팅/리포트/설정은 이 브라우저(IndexedDB · localStorage)에 저장됩니다. 백업 파일로 내보내거나 복원할 수 있습니다.</p>
+            <div class="row">
+              <button class="btn" id="data-export">⬇ 설정·리포트 백업</button>
+              <label class="btn">⬆ 백업 복원 <input type="file" id="data-import" accept="application/json" hidden></label>
+              <button class="btn danger" id="data-reset">전체 초기화</button>
+            </div>
+            <div class="muted small mt" id="data-stats"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div class="toast-wrap" id="toasts"></div>
+<div id="modal-root"></div>
+
+<script src="js/util.js"></script>
+<script src="js/db.js"></script>
+<script src="js/ai.js"></script>
+<script src="js/review.js"></script>
+<script src="js/image-gen.js"></script>
+<script src="js/video-gen.js"></script>
+<script src="js/poster.js"></script>
+<script src="js/library.js"></script>
+<script src="js/blog.js"></script>
+<script src="js/admin.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
