@@ -2,7 +2,13 @@
 
 제목·설명·이벤트 내용만 입력하면 릴스용 카드뉴스 4장과 15초 쇼츠 영상을 브라우저에서 바로 만들고, 검수 → 라이브러리 → 자동 포스팅 → 인사이트 리포트까지 한 곳에서 처리하는 정적 웹 앱입니다. 서버·DB 없이 동작하며 모든 데이터는 브라우저(IndexedDB/localStorage)에 저장됩니다.
 
-## 실행
+## 공개 주소 (GitHub Pages)
+
+https://tonibae1004.github.io/weplatform-studio/
+
+GitHub 저장소 `tonibae1004/weplatform-studio`의 `main` 브랜치에서 자동 배포됩니다. 코드를 수정한 뒤 `git push` 하면 1분 내외로 반영됩니다. 처음 배포는 `deploy.ps1`로 했습니다.
+
+## 로컬 실행
 
 ```bash
 node server.js
