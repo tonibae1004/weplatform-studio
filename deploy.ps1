@@ -1,4 +1,4 @@
-# WePlatform Studio — GitHub Pages 배포 스크립트
+﻿# WePlatform Studio — GitHub Pages 배포 스크립트
 # 실행: powershell -ExecutionPolicy Bypass -File .\deploy.ps1
 # 하는 일: GitHub 저장소 생성(없으면) → main 푸시 → Pages 활성화 → 공개 URL 확인
 # 비공개 저장소에서 Pages가 지원되지 않는 요금제면 저장소를 공개로 전환하고 다시 시도합니다.
@@ -17,7 +17,7 @@ if ($LASTEXITCODE -ne 0) { Write-Host "gh auth login 으로 먼저 로그인하�
 Write-Host "== 2/4 저장소 생성 및 푸시" -ForegroundColor Cyan
 $null = & $gh repo view "$owner/$repo" --json name 2>&1
 if ($LASTEXITCODE -ne 0) {
-  & $gh repo create $repo --private --description "인스타·릴스·쇼츠 콘텐츠 자동화 플랫폼 (사내용)" --source=. --remote=origin --push
+  & $gh repo create $repo --private --description "WePlatform Studio - Instagram/Reels/Shorts content automation (internal)" --source=. --remote=origin --push
   if ($LASTEXITCODE -ne 0) { Write-Host "저장소 생성 실패" -ForegroundColor Red; exit 1 }
 } else {
   $hasRemote = git remote get-url origin 2>$null
